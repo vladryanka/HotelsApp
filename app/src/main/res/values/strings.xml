@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">Список отелей</string>
+    <string name="sort">Сортировать</string>
+    <string-array name="spinner_items">
+        <item>Расстояние</item>
+        <item>Свободные места</item>
+    </string-array>
+</resources>
