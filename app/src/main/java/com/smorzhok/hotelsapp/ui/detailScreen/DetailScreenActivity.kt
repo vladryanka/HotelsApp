@@ -12,6 +12,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -37,8 +39,10 @@ class DetailScreenActivity : AppCompatActivity() {
 
     @Composable
     fun DetailScreen(hotelDetail: HotelDetail, image: Painter?) {
+        val scrollState = rememberScrollState()
         Column(
             modifier = Modifier
+                .verticalScroll(scrollState)
                 .fillMaxWidth()
         ) {
             if (image != null) {
@@ -99,7 +103,9 @@ class DetailScreenActivity : AppCompatActivity() {
         composeView = findViewById(R.id.composeView)
         val hotel: Hotel? = intent.getParcelableExtra(EXTRA_HOTEL)
         if (hotel != null) {
-            viewModel.loadDetails(hotel.id)
+            if (viewModel.hotel.value == null) {
+                viewModel.loadDetails(hotel.id)
+            }
 
             composeView.setContent {
                 val isLoading by viewModel.isLoading.observeAsState(initial = true)

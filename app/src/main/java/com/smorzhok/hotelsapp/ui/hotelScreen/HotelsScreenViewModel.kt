@@ -1,6 +1,7 @@
 package com.smorzhok.hotelsapp.ui.hotelScreen
 
 import android.app.Application
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -26,24 +27,29 @@ class HotelsScreenViewModel(application: Application) : AndroidViewModel(applica
 
     fun loadHotels() {
         viewModelScope.launch {
-            _isLoading.value = true
-            val response = HotelApi.retrofitService.loadHotels()
-            _hotels.value = response
-            val hotelsInDao = hotelDao.getHotels().first()
-            val newHotels = response.filter { apiHotel ->
-                hotelsInDao.none { daoHotel -> daoHotel.id == apiHotel.id }
-            }
-            _isLoading.value = false
 
-            withContext(Dispatchers.IO) {
-                for (hotel in newHotels) {
-                    val existingHotel = hotelDao.getHotelById(hotel.id)
-                    if (existingHotel == null) {
-                        hotelDao.add(hotel)
-                    } else {
-                        hotelDao.update(hotel)
+            _isLoading.value = true
+            try {
+                val response = HotelApi.retrofitService.loadHotels()
+                _hotels.value = response
+                val hotelsInDao = hotelDao.getHotels().first()
+                val newHotels = response.filter { apiHotel ->
+                    hotelsInDao.none { daoHotel -> daoHotel.id == apiHotel.id }
+                }
+                _isLoading.value = false
+
+                withContext(Dispatchers.IO) {
+                    for (hotel in newHotels) {
+                        val existingHotel = hotelDao.getHotelById(hotel.id)
+                        if (existingHotel == null) {
+                            hotelDao.add(hotel)
+                        } else {
+                            hotelDao.update(hotel)
+                        }
                     }
                 }
+            } catch (e: Exception) {
+                Log.d("Doing", e.toString())
             }
         }
     }
